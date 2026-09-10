@@ -1,5 +1,7 @@
 "use client"
 import Navbar from "./components/navbar";
+import AnnouncementBanner from "./components/announcementBanner";
+import GameBubble from "./components/game";
 import Hero from "./components/hero";
 import About from "./components/about";
 import Tracks from "./components/tracks";
@@ -21,6 +23,8 @@ export default function Home() {
   return (
     <main className="pt-11">
       <Navbar/>
+      <AnnouncementBanner/>
+      <GameBubble/>
       <Hero/>
       <Reveal><About/></Reveal>
       <Reveal delay={0.05}><Tracks/></Reveal>
