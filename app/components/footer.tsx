@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 
 type ShareModalState = {
   isOpen: boolean;
-  platform: "LinkedIn" | "Instagram" | null;
+  platform: "LinkedIn" | "Instagram" | "Telegram" | null;
   message: string;
   targetUrl: string;
 };
@@ -34,49 +34,44 @@ export default function Footer() {
     "Building agentic products with 100+ student builders at SIM IT Club's flagship 24-hour hackathon!";
   const shareHashtags = "#HackXperience2026 #SIMITClub";
 
-  // Pure caption text without URL
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
-  const copyToClipboardSync = (text: string) => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(() => {});
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      }
+    } catch {
+      // Silent catch for clipboard permission errors
     }
   };
 
-  const handleShareClick = (platform: "LinkedIn" | "Instagram", targetUrl: string) => {
-    // 1. Synchronously copy to clipboard so we don't break the user activation gesture chain
-    copyToClipboardSync(shareText);
-
-    // 2. On Mobile with Web Share API support: Trigger sheet IMMEDIATELY without async delays
+  const handleShare = (
+    platform: "LinkedIn" | "Instagram" | "Telegram",
+    targetUrl: string
+  ) => {
     const isMobile =
       typeof window !== "undefined" &&
       /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    if (isMobile && navigator.share) {
+    copyToClipboard(shareText);
+
+    // Native Web Share API on Mobile (for general share)
+    if (isMobile && navigator.share && platform !== "Telegram") {
       navigator
         .share({
           title: shareTitle,
           text: shareText,
         })
-        .catch((err) => {
-          if ((err as Error).name !== "AbortError") {
-            // Fallback to modal if native share fails
-            setModal({
-              isOpen: true,
-              platform,
-              message: `Your captions are copied! Tap proceed to visit ${platform}.`,
-              targetUrl,
-            });
-          }
-        });
+        .catch(() => {});
       return;
     }
 
-    // 3. Desktop / Unsupported Mobile: Show intermediate confirmation modal
+    // Modal Fallback (for Telegram / Desktop)
     setModal({
       isOpen: true,
       platform,
-      message: `Your captions are copied! Click proceed to visit ${platform}.`,
+      message: `Your captions are ready! Tap proceed to open ${platform} with your pre-filled text.`,
       targetUrl,
     });
   };
@@ -84,11 +79,21 @@ export default function Footer() {
   const handleLinkedInShare = () => {
     const encodedText = encodeURIComponent(shareText);
     const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
-    handleShareClick("LinkedIn", linkedinUrl);
+    handleShare("LinkedIn", linkedinUrl);
   };
 
   const handleInstagramShare = () => {
-    handleShareClick("Instagram", "https://www.instagram.com/");
+    handleShare("Instagram", "https://www.instagram.com/");
+  };
+
+  const handleTelegramShare = () => {
+    const encodedText = encodeURIComponent(shareText);
+    // Standard Telegram web/app intent deep-link that auto-fills captions on mobile & desktop
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      "https://hackxperience.simitclub.com"
+    )}&text=${encodedText}`;
+
+    handleShare("Telegram", telegramShareUrl);
   };
 
   return (
@@ -168,6 +173,14 @@ export default function Footer() {
               </div>
 
               <div className="flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleTelegramShare}
+                  className="w-full border border-[#444] px-4 py-2.5 text-left text-[12px] sm:text-[13px] tracking-[0.06em] text-[#777] hover:border-[#c00000] hover:text-white transition-colors cursor-pointer"
+                >
+                  TELEGRAM
+                </button>
+
                 <button
                   type="button"
                   onClick={handleLinkedInShare}
