@@ -56,10 +56,10 @@ export default function Navbar() {
     return () => window.clearInterval(id);
   }, [leaderboardLive]);
 
-  const navItems = leaderboardLive
+  const navItems: NavItem[] = leaderboardLive
     ? [
         ...NAV_ITEMS.slice(0, -1),
-        { label: "LEADERBOARD", href: "/community-favourites" } satisfies NavItem,
+        { label: "LEADERBOARD", href: "/community-favourites" },
         NAV_ITEMS[NAV_ITEMS.length - 1],
       ]
     : NAV_ITEMS;
@@ -80,10 +80,12 @@ export default function Navbar() {
       router.push(item.href);
       return;
     }
-    if (pathname !== "/") {
-      router.push(`/#${item.target}`);
-    } else {
-      scrollTo(item.target);
+    if ("target" in item) {
+      if (pathname !== "/") {
+        router.push(`/#${item.target}`);
+      } else {
+        scrollTo(item.target);
+      }
     }
   };
 
