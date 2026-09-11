@@ -45,45 +45,18 @@ export default function Footer() {
     }
   };
 
-  const handleLinkedInShare = async () => {
-    await copyToClipboard();
-
-    // LinkedIn post composer with prefilled text
-    const encodedText = encodeURIComponent(shareText);
-    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
-
-    setModal({
-      isOpen: true,
-      platform: "LinkedIn",
-      message: "Your captions are copied! Click proceed to post on LinkedIn.",
-      targetUrl: linkedinUrl,
-    });
-  };
-
-  const handleInstagramShare = async () => {
-    await copyToClipboard();
-
-    setModal({
-      isOpen: true,
-      platform: "Instagram",
-      message: "Your captions are copied! Click proceed to visit Instagram.",
-      targetUrl: "https://www.instagram.com/",
-    });
-  };
-
-  const handleProceed = async () => {
-    const targetUrl = modal.targetUrl;
-
-    // Detect mobile device
-    const isMobile =
+  const isMobileDevice = () => {
+    return (
       typeof window !== "undefined" &&
-      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    );
+  };
 
-    // Close modal state immediately
-    setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
+  const handleShareClick = async (platform: "LinkedIn" | "Instagram", targetUrl: string) => {
+    await copyToClipboard();
 
-    // 1. Mobile Native Share Sheet (Pure text payload)
-    if (isMobile && navigator.share) {
+    // 1. On Mobile: Use Native Share Sheet directly if available to completely avoid pop-ups/modals
+    if (isMobileDevice() && navigator.share) {
       try {
         await navigator.share({
           title: shareTitle,
@@ -91,20 +64,27 @@ export default function Footer() {
         });
         return;
       } catch (err) {
-        if ((err as Error).name === "AbortError") {
-          return;
-        }
+        if ((err as Error).name === "AbortError") return;
       }
     }
 
-    // 2. Direct Navigation/Tab Opening (Maintains User-Gesture Trust Chain)
-    if (targetUrl) {
-      if (isMobile) {
-        window.location.href = targetUrl;
-      } else {
-        window.open(targetUrl, "_blank", "noopener,noreferrer");
-      }
-    }
+    // 2. On Desktop or devices without navigator.share: Show Modal
+    setModal({
+      isOpen: true,
+      platform,
+      message: `Your captions are copied! Click proceed to visit ${platform}.`,
+      targetUrl,
+    });
+  };
+
+  const handleLinkedInShare = () => {
+    const encodedText = encodeURIComponent(shareText);
+    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
+    handleShareClick("LinkedIn", linkedinUrl);
+  };
+
+  const handleInstagramShare = () => {
+    handleShareClick("Instagram", "https://www.instagram.com/");
   };
 
   return (
@@ -177,7 +157,7 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* New — share your experience */}
+            {/* Share your experience */}
             <div className="md:w-[20%]">
               <div className="text-[#c00000] text-[12px] sm:text-[13px] font-bold tracking-[0.10em] uppercase mb-5">
                 // SHARE YOUR EXPERIENCE
@@ -243,13 +223,22 @@ export default function Footer() {
               >
                 CANCEL
               </button>
-              <button
-                type="button"
-                onClick={handleProceed}
-                className="bg-[#c00000] px-5 py-2 text-[12px] font-semibold tracking-[0.06em] text-white hover:bg-[#a00000] transition-colors cursor-pointer uppercase"
+              <a
+                href={modal.targetUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  setModal({
+                    isOpen: false,
+                    platform: null,
+                    message: "",
+                    targetUrl: "",
+                  })
+                }
+                className="bg-[#c00000] px-5 py-2 text-[12px] font-semibold tracking-[0.06em] text-white hover:bg-[#a00000] transition-colors cursor-pointer uppercase inline-block text-center"
               >
-                Proceed
-              </button>
+                PROCEED
+              </a>
             </div>
           </div>
         </div>
