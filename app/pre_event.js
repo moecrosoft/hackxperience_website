@@ -199,7 +199,7 @@ export default function PreEvent() {
   const now = useNow()
 
   return (
-    <section id="pre-events" className="bg-[#1a1a1a] px-6 md:px-12 pt-14 sm:pt-20 pb-10 font-mono scroll-mt-11">
+    <section id="pre-events" className="bg-[#121212] px-6 md:px-12 pt-14 sm:pt-20 pb-10 font-mono scroll-mt-11">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           title="PRE_EVENTS"

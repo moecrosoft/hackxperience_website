@@ -42,22 +42,19 @@ function LinkedInButton({ member }: { member: Member }) {
 
   return (
     <div
-      className="absolute bottom-2 right-2 z-20 pointer-events-auto"
+      className="absolute bottom-2.5 right-2.5 z-20 pointer-events-auto"
       style={{ transform: "translateZ(30px)" }}
     >
       <a
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-[2rem] h-[2rem] sm:w-[2.2rem] sm:h-[2.2rem] bg-[#f2ede5] rounded-full flex justify-center items-center relative z-10 border-[1.5px] border-[#1d1c17] overflow-hidden group shadow-md"
+        className="w-8 h-8 bg-[#1f1f1f]/90 hover:bg-[#d10000] text-white/80 hover:text-white flex justify-center items-center rounded-sm border border-[#d10000]/60 shadow-[2px_2px_0_0_rgba(209,0,0,0.4)] transition-colors duration-200 cursor-pointer"
         aria-label={`${member.name} LinkedIn`}
       >
-        <div className="absolute inset-0 w-full h-full bg-[#0077b5] scale-y-0 origin-bottom transition-transform duration-500 ease-in-out group-hover:scale-y-100" />
-        <span className="text-[1rem] text-[#1d1c17] transition-all duration-500 ease-in-out z-[2] group-hover:text-white group-hover:rotate-[360deg]">
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[1em] h-[1em] fill-current">
-            <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19ZM8.34 9.89H5.65V18H8.34V9.89ZM6.99 5.6A1.56 1.56 0 1 0 6.99 8.72A1.56 1.56 0 0 0 6.99 5.6ZM18 13.34C18 10.89 16.69 9.74 14.95 9.74C13.54 9.74 12.91 10.52 12.55 11.07V9.89H9.86V18H12.55V13.98C12.55 12.92 12.75 11.9 14.07 11.9C15.37 11.9 15.39 13.12 15.39 14.05V18H18V13.34Z" />
-          </svg>
-        </span>
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="w-4 h-4 fill-current">
+          <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19ZM8.34 9.89H5.65V18H8.34V9.89ZM6.99 5.6A1.56 1.56 0 1 0 6.99 8.72A1.56 1.56 0 0 0 6.99 5.6ZM18 13.34C18 10.89 16.69 9.74 14.95 9.74C13.54 9.74 12.91 10.52 12.55 11.07V9.89H9.86V18H12.55V13.98C12.55 12.92 12.75 11.9 14.07 11.9C15.37 11.9 15.39 13.12 15.39 14.05V18H18V13.34Z" />
+        </svg>
       </a>
     </div>
   );
@@ -68,22 +65,25 @@ function MemberPhoto({ member }: { member: Member }) {
   const { scale: frameScale, objectPosition: framePosition } = PHOTO_FRAMES[frame];
   const scale = member.scale ?? frameScale;
   const objectPosition = member.objectPosition ?? framePosition;
-  const photo = member.img ? (
-    <img
-      src={member.img}
-      alt={member.name}
-      className="w-full h-full object-cover transition-transform duration-300"
-      style={{
-        objectPosition,
-        transform: `scale(${scale})`,
-        transformOrigin: objectPosition,
-      }}
-    />
-  ) : null;
 
   return (
-    <div className="w-full aspect-[3/4] bg-[#ddd8cf] border border-[#ccc7bd] overflow-hidden relative [transform-style:preserve-3d]">
-      {photo}
+    <div className="w-full aspect-[3/4] bg-[#141414] border border-[#b30000]/60 overflow-hidden relative [transform-style:preserve-3d] shadow-[3px_3px_0_0_rgba(179,0,0,0.3)] group-hover:shadow-[5px_5px_0_0_rgba(209,0,0,0.5)] group-hover:border-[#d10000] transition-all duration-300">
+      {member.img ? (
+        <img
+          src={member.img}
+          alt={member.name}
+          className="w-full h-full object-cover transition-transform duration-300 pointer-events-none"
+          style={{
+            objectPosition,
+            transform: `scale(${scale})`,
+            transformOrigin: objectPosition,
+          }}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-xs text-white/30 tracking-widest uppercase select-none">
+          // NO PHOTO
+        </div>
+      )}
       <LinkedInButton member={member} />
     </div>
   );
@@ -105,7 +105,7 @@ function Member3DCard({ member }: { member: Member }) {
     const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const maxTilt = 9;
+    const maxTilt = 8;
 
     setRotateX(((centerY - y) / centerY) * maxTilt);
     setRotateY(((x - centerX) / centerX) * maxTilt);
@@ -124,7 +124,7 @@ function Member3DCard({ member }: { member: Member }) {
 
   return (
     <div
-      className="w-full"
+      className="w-full group "
       style={{ perspective: "1000px" }}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
@@ -142,13 +142,13 @@ function Member3DCard({ member }: { member: Member }) {
           <MemberPhoto member={member} />
         </div>
         <div
-          className="mt-3 text-[10px] sm:text-[11px] font-bold tracking-[0.10em] text-[#c00000] uppercase"
+          className="mt-2.5 text-[10px] sm:text-[11px] font-bold tracking-[0.08em] text-[#d10000] uppercase select-none"
           style={{ transform: "translateZ(20px)" }}
         >
-          {member.role}
+          // {member.role}
         </div>
         <div
-          className={`${montserrat.className} mt-1 text-[13px] sm:text-[15px] font-extrabold tracking-tight text-[#1d1c17] uppercase`}
+          className={`${montserrat.className} mt-0.5 text-[12px] sm:text-[14px] font-bold tracking-tight text-white/90 uppercase group-hover:text-[#d10000] transition-colors select-none`}
           style={{ transform: "translateZ(20px)" }}
         >
           {member.name}
@@ -216,31 +216,34 @@ export default function Committee() {
   return (
     <section
       id="organise-members"
-      className={`${ibmPlexMono.className} w-full bg-[#f2ede5] px-6 sm:px-10 md:px-14 py-16 sm:py-24 scroll-mt-11`}
+      className={`${ibmPlexMono.className} w-full bg-[#121212] text-white px-6 sm:px-10 md:px-14 py-16 sm:py-24 scroll-mt-11 border-t border-[#b30000]/40`}
     >
       <div className="mx-auto max-w-7xl">
-        <div className="flex items-center gap-6 mb-10 sm:mb-14">
+        <div className="flex items-center gap-6 mb-12 sm:mb-16">
           <h2
-            className={`${montserrat.className} text-[26px] sm:text-[34px] md:text-[40px] font-extrabold tracking-tight text-[#1d1c17] uppercase whitespace-nowrap`}
+            className={`${montserrat.className} text-[26px] sm:text-[34px] md:text-[40px] font-extrabold tracking-tight text-white uppercase whitespace-nowrap`}
           >
-            ORGANIZING COMMITTEE
+            ORGANIZING <span className="text-[#d10000]">COMMITTEE</span>
           </h2>
-          <div className="flex-1 h-px bg-[#c5bfb5]" />
+          <div className="flex-1 h-px bg-[#d10000]/30" />
         </div>
 
-        <div className="space-y-12 sm:space-y-16">
+        <div className="space-y-14 sm:space-y-20">
           {TEAMS.map((team) => (
             <div key={team.label}>
               <RevealItem>
-                <div className="mb-6 sm:mb-8">
-                  <span className="px-4 sm:px-5 py-2 text-[11px] sm:text-[12px] font-bold tracking-[0.10em] uppercase bg-[#1d1c17] text-white border border-[#1d1c17] inline-block">
-                    {team.label}
+                <div className="mb-6 sm:mb-8 flex items-center gap-4">
+                  <span
+                    className={`${montserrat.className} px-4 py-2 text-xs sm:text-sm font-extrabold tracking-[0.12em] uppercase bg-[#171717] text-white border border-[#d10000]/80 inline-block shadow-[3px_3px_0_0_#d10000]`}
+                  >
+                    // {team.label}
                   </span>
+                  <div className="flex-1 h-[1px] bg-white/10" />
                 </div>
               </RevealItem>
 
               <RevealStagger
-                className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 gap-4 sm:gap-5"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-5 sm:gap-6"
                 stagger={0.04}
               >
                 {team.members.map((member, i) => (

@@ -52,9 +52,10 @@ export default function EasterEggBubble() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 bg-[#d10000]" />
               </span>
               <h3
-                className={`${montserrat.className} text-[15px] xs:text-[18px] sm:text-[24px] font-extrabold uppercase leading-none tracking-tight text-[#d10000]`}
+                className={`${montserrat.className} text-[15px] xs:text-[18px] sm:text-[24px] font-extrabold uppercase leading-none tracking-tight`}
               >
-                // SECRET GAME CHALLENGE
+                <span className="text-white">SECRET GAME </span>
+                <span className="text-[#d10000]">CHALLENGE</span>
               </h3>
             </div>
 
@@ -70,7 +71,7 @@ export default function EasterEggBubble() {
             </div>
 
             {/* Responsive Instructions */}
-            <ul className="space-y-2 sm:space-y-2.5 text-[12px] sm:text-[14px] text-[#d10000] font-medium">
+            <ul className="space-y-2 sm:space-y-2.5 text-[12px] sm:text-[14px] text-white font-medium">
               <li className="sm:whitespace-nowrap overflow-hidden text-ellipsis">&gt; Find Puspak and take a selfie.</li>
               <li className="sm:whitespace-nowrap overflow-hidden text-ellipsis">&gt; Send the photo inside the hackathon group chat.</li>
               <li className="sm:whitespace-nowrap overflow-hidden text-ellipsis">&gt; The first three to send will win a surprise gift!</li>
