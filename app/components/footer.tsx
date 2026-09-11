@@ -48,7 +48,7 @@ export default function Footer() {
   const handleLinkedInShare = async () => {
     await copyToClipboard();
 
-    // LinkedIn post composer with prefilled text (No URL attached)
+    // LinkedIn post composer with prefilled text
     const encodedText = encodeURIComponent(shareText);
     const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
 
@@ -74,10 +74,13 @@ export default function Footer() {
   const handleProceed = async () => {
     const targetUrl = modal.targetUrl;
 
-    // Detect mobile device (iOS / Android)
+    // Detect mobile device
     const isMobile =
       typeof window !== "undefined" &&
       /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    // Close modal state immediately
+    setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
 
     // 1. Mobile Native Share Sheet (Pure text payload)
     if (isMobile && navigator.share) {
@@ -86,22 +89,22 @@ export default function Footer() {
           title: shareTitle,
           text: shareText,
         });
-        setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
         return;
       } catch (err) {
         if ((err as Error).name === "AbortError") {
-          setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
           return;
         }
       }
     }
 
-    // 2. Desktop Behavior: Opens social network directly
+    // 2. Direct Navigation/Tab Opening (Maintains User-Gesture Trust Chain)
     if (targetUrl) {
-      window.open(targetUrl, "_blank", "noopener,noreferrer");
+      if (isMobile) {
+        window.location.href = targetUrl;
+      } else {
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+      }
     }
-
-    setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
   };
 
   return (
