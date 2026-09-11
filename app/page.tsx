@@ -1,7 +1,9 @@
 "use client"
 import Navbar from "./components/navbar";
 import AnnouncementBanner from "./components/announcementBanner";
-import GameBubble from "./components/game";
+import GameBubble from "./components/hiddenGame";
+import CommunityWall from "./components/communityWall";
+import ApiCredits from "./components/apiCredits";
 import Hero from "./components/hero";
 import About from "./components/about";
 import Tracks from "./components/tracks";
@@ -35,6 +37,8 @@ export default function Home() {
       <Reveal delay={0.05} y={48}><TimeLine/></Reveal>
       <Reveal delay={0.05}><Faq/></Reveal>
       <Reveal delay={0.05}><Committee/></Reveal>
+      <ApiCredits/>
+      <CommunityWall/>
       <Reveal delay={0.05} scale={0.95}><TimelineCta/></Reveal>
       <Footer/>
 

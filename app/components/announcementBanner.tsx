@@ -58,7 +58,7 @@ export default function AnnouncementBanner() {
         reduceMotion
           ? { opacity: 1, filter: BASE_FILTER }
           : {
-              y: [0, -16, 0], // Sightly dampened peak height for mobile edge safety
+              y: [0, -16, 0],
               scale: [1, 1.03, 1],
               opacity: [1, 1, 1],
               filter: [BASE_FILTER, PEAK_FILTER, BASE_FILTER],
@@ -73,7 +73,7 @@ export default function AnnouncementBanner() {
               ease: [0.45, 0, 0.55, 1],
             }
       }
-      className={`${ibmPlexMono.className} fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 w-[calc(100vw-2rem)] sm:w-[calc(100vw-3rem)] max-w-lg bg-[#111111] text-white border-2 sm:border-4 border-[#d10000] shadow-[8px_8px_0_0_#d10000] sm:shadow-[16px_16px_0_0_#d10000] p-5 sm:p-8 select-none origin-bottom-right`}
+      className={`${ibmPlexMono.className} fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[9999] pointer-events-auto w-[calc(100vw-2rem)] sm:w-[calc(100vw-3rem)] max-w-lg bg-[#111111] text-white border-2 sm:border-4 border-[#d10000] shadow-[8px_8px_0_0_#d10000] sm:shadow-[16px_16px_0_0_#d10000] p-5 sm:p-8 select-none origin-bottom-right`}
     >
       {/* Close Button */}
       <button
