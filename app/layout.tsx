@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
@@ -19,6 +19,13 @@ const SITE_URL = "https://hackxperience2026.vercel.app";
 const SITE_TITLE = "HackXperience 2026: 24-Hour Agentic Sprint Hackathon at SIM";
 const SITE_DESCRIPTION =
   "HackXperience 2026, SIM IT Club's flagship 24-hour sprint hackathon. Teams of 3–4 build and deploy agentic products around AI for Living, 24–25 July at SIM. Registration is closed.";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -107,7 +114,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full w-full max-w-[100vw] overflow-x-hidden antialiased`}
     >
       <head>
         <script
@@ -128,7 +135,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col w-full max-w-[100vw] overflow-x-hidden">
         <Analytics />
         <VercelAnalytics />
         {children}
