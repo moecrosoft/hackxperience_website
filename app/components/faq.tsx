@@ -300,13 +300,13 @@ export default function Faq() {
     >
       <div className="mx-auto max-w-7xl">
         {/* Header Line */}
-        <div className="flex items-center gap-6 mb-12 sm:mb-16">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 mb-8 sm:mb-16">
           <h2
-            className={`${montserrat.className} text-[26px] sm:text-[34px] md:text-[40px] font-extrabold tracking-tight text-white uppercase whitespace-nowrap`}
+            className={`${montserrat.className} text-[20px] xs:text-[24px] sm:text-[34px] md:text-[40px] font-extrabold tracking-tight text-white uppercase break-words leading-tight`}
           >
             FREQUENTLY ASKED <span className="text-[#d10000]">QUESTIONS</span>
           </h2>
-          <div className="flex-1 h-px bg-[#d10000]/40" />
+          <div className="flex-1 h-px bg-[#d10000]/40 w-full sm:w-auto" />
         </div>
 
         <div className="space-y-12 sm:space-y-16">

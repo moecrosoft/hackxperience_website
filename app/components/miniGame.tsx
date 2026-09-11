@@ -104,7 +104,7 @@ export default function MiniGame({ isOpen, onClose }: MiniGameModalProps) {
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             className={`relative z-10 w-full max-w-md sm:max-w-lg bg-[#0a0a0a] border-2 border-[#d10000] text-white shadow-[0_0_25px_rgba(209,0,0,0.3)] flex flex-col overflow-hidden max-h-[90dvh] ${ibmPlexMono.className}`}
           >
-            {/* Modal Header with Bigger & Brighter Centered Title */}
+            {/* Modal Header */}
             <div className="relative w-full bg-[#141414] border-b-2 border-[#d10000] px-4 py-3.5 flex items-center justify-center shrink-0">
               <div className="flex items-center justify-center gap-2.5">
                 <span className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-[#ff0000] shadow-[0_0_10px_#ff0000] animate-pulse" />
@@ -116,7 +116,6 @@ export default function MiniGame({ isOpen, onClose }: MiniGameModalProps) {
                 </h3>
               </div>
 
-              {/* Styled Cyberpunk X Box Button */}
               <button
                 onClick={onClose}
                 aria-label="Close Mini Game"
@@ -159,13 +158,19 @@ export default function MiniGame({ isOpen, onClose }: MiniGameModalProps) {
                         whileHover={{ scale: isFlipped ? 1 : 1.03 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleCardClick(idx)}
-                        className={`aspect-square w-full border-2 flex items-center justify-center text-xl xs:text-2xl transition-all cursor-pointer font-bold ${
+                        className={`aspect-square w-full border-2 flex items-center justify-center transition-all cursor-pointer font-bold select-none ${
                           isFlipped
-                            ? "border-[#d10000] bg-[#1d1c17] text-white shadow-[2px_2px_0_0_#d10000]"
-                            : "border-white/20 bg-[#141414] text-transparent hover:border-[#ff4d4d]"
+                            ? "border-[#d10000] bg-[#1d1c17] shadow-[2px_2px_0_0_#d10000]"
+                            : "border-white/20 bg-[#141414] hover:border-[#ff4d4d]"
                         }`}
                       >
-                        {isFlipped ? symbol : "?"}
+                        {isFlipped ? (
+                          <span className="text-2xl xs:text-3xl leading-none inline-block font-[system-ui,apple-color-emoji,segoe-ui-emoji]">
+                            {symbol}
+                          </span>
+                        ) : (
+                          <span className="text-xl xs:text-2xl text-white/40">?</span>
+                        )}
                       </motion.button>
                     );
                   })}

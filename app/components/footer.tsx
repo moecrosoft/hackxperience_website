@@ -29,13 +29,13 @@ export default function Footer() {
     targetUrl: "",
   });
 
-  const shareTitle = "HACKXPERIENCE 2026 — AI for Living\n";
+  const shareTitle = "HACKXPERIENCE 2026 — AI for Living";
   const shareSubtitle =
     "Building agentic products with 100+ student builders at SIM IT Club's flagship 24-hour hackathon!";
-  const shareHashtags = "#HackXperience2027 #SIMITClub";
+  const shareHashtags = "#HackXperience2026 #SIMITClub";
 
-  // Formatted caption content
-  const shareText = `${shareTitle}\n${shareSubtitle}\n\n${shareHashtags}`;
+  // Pure caption text without URL
+  const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
   const copyToClipboard = async () => {
     try {
@@ -48,15 +48,14 @@ export default function Footer() {
   const handleLinkedInShare = async () => {
     await copyToClipboard();
 
-    // Option A: Pre-fills the LinkedIn post composer directly via feed parameters
-    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(
-      shareText
-    )}`;
+    // LinkedIn post composer with prefilled text (No URL attached)
+    const encodedText = encodeURIComponent(shareText);
+    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
 
     setModal({
       isOpen: true,
       platform: "LinkedIn",
-      message: "Your captions are copied, directing to a new post on linkedIn",
+      message: "Your captions are copied! Click proceed to post on LinkedIn.",
       targetUrl: linkedinUrl,
     });
   };
@@ -67,15 +66,41 @@ export default function Footer() {
     setModal({
       isOpen: true,
       platform: "Instagram",
-      message: "Your captions are copied, you can proceed to post on Instagram.",
+      message: "Your captions are copied! Click proceed to visit Instagram.",
       targetUrl: "https://www.instagram.com/",
     });
   };
 
-  const handleProceed = () => {
-    if (modal.targetUrl) {
-      window.open(modal.targetUrl, "_blank", "noopener,noreferrer");
+  const handleProceed = async () => {
+    const targetUrl = modal.targetUrl;
+
+    // Detect mobile device (iOS / Android)
+    const isMobile =
+      typeof window !== "undefined" &&
+      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    // 1. Mobile Native Share Sheet (Pure text payload)
+    if (isMobile && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+        });
+        setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
+        return;
+      } catch (err) {
+        if ((err as Error).name === "AbortError") {
+          setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
+          return;
+        }
+      }
     }
+
+    // 2. Desktop Behavior: Opens social network directly
+    if (targetUrl) {
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    }
+
     setModal({ isOpen: false, platform: null, message: "", targetUrl: "" });
   };
 
@@ -190,7 +215,9 @@ export default function Footer() {
 
       {/* Share Modal */}
       {modal.isOpen && (
-        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 ${ibmPlexMono.className}`}>
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 ${ibmPlexMono.className}`}
+        >
           <div className="w-full max-w-md border border-[#333] bg-[#1e1e1e] p-6 shadow-2xl">
             <div className="text-[#c00000] text-[12px] font-bold tracking-[0.10em] uppercase mb-3">
               // SHARE_STATUS
@@ -201,7 +228,14 @@ export default function Footer() {
             <div className="flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setModal({ isOpen: false, platform: null, message: "", targetUrl: "" })}
+                onClick={() =>
+                  setModal({
+                    isOpen: false,
+                    platform: null,
+                    message: "",
+                    targetUrl: "",
+                  })
+                }
                 className="border border-[#444] px-4 py-2 text-[12px] tracking-[0.06em] text-[#888] hover:border-[#666] hover:text-white transition-colors cursor-pointer"
               >
                 CANCEL

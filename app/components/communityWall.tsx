@@ -24,7 +24,6 @@ type Message = {
   createdAt: number;
 };
 
-// Helper for relative time formatting ("... ago")
 function getRelativeTime(timestamp: number): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
   if (seconds < 30) return "Just now";
@@ -43,11 +42,9 @@ export default function CommunityWallCta() {
   const [text, setText] = useState("");
   const reduceMotion = useReducedMotion();
 
-  // Empty state - zero pre-filled messages
   const [messages, setMessages] = useState<Message[]>([]);
   const [, setTick] = useState(0);
 
-  // Periodic ticker to keep "... ago" timestamps fresh automatically
   useEffect(() => {
     if (!isModalOpen || messages.length === 0) return;
     const interval = setInterval(() => setTick((t) => t + 1), 30000);
@@ -73,6 +70,22 @@ export default function CommunityWallCta() {
 
   return (
     <>
+      {/* CSS Keyframe Styles for Continuous Bounce */}
+      <style jsx global>{`
+        @keyframes continuousBounce {
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        .animate-continuous-bounce {
+          animation: continuousBounce 2.4s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Section CTA */}
       <section
         id="community-wall"
@@ -120,7 +133,7 @@ export default function CommunityWallCta() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
             className={`fixed inset-0 z-[9999] h-dvh w-screen bg-[#0a0a0a] text-white flex flex-col overflow-hidden ${ibmPlexMono.className}`}
           >
             {/* Modal Header */}
@@ -158,60 +171,58 @@ export default function CommunityWallCta() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pb-28">
-                  {messages.map((msg, index) => (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={
-                        reduceMotion
-                          ? { opacity: 1, y: 0 }
-                          : {
-                              opacity: 1,
-                              y: [0, index % 2 === 0 ? -6 : 6, 0],
-                            }
-                      }
-                      transition={
-                        reduceMotion
-                          ? { duration: 0.2 }
-                          : {
-                              y: {
-                                duration: 4 + (index % 3),
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                              },
-                            }
-                      }
-                      className="border-2 border-[#d10000] bg-[#121212] p-4 sm:p-6 shadow-[4px_4px_0_0_#d10000] sm:shadow-[5px_5px_0_0_#d10000] hover:shadow-[7px_7px_0_0_#d10000] transition-all cursor-pointer flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex justify-between items-center border-b border-white/10 pb-2 sm:pb-3 mb-2 sm:mb-3">
-                          <span className="font-bold text-[#d10000] text-xs sm:text-sm uppercase truncate pr-2">
-                            @{msg.name}
-                          </span>
-                          <span className="text-[10px] sm:text-[11px] text-white/50 shrink-0">
-                            {getRelativeTime(msg.createdAt)}
-                          </span>
+                  <AnimatePresence initial={false}>
+                    {messages.map((msg, index) => (
+                      <motion.div
+                        key={msg.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.6 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.25 }}
+                      >
+                        <div
+                          style={{
+                            animationDelay: `${(index % 3) * 0.4}s`,
+                          }}
+                          className={`${
+                            reduceMotion ? "" : "animate-continuous-bounce"
+                          } border-2 border-[#d10000] bg-[#121212] p-4 sm:p-6 shadow-[4px_4px_0_0_#d10000] sm:shadow-[5px_5px_0_0_#d10000] hover:shadow-[7px_7px_0_0_#d10000] transition-all cursor-pointer flex flex-col justify-between h-full`}
+                        >
+                          <div>
+                            <div className="flex justify-between items-center border-b border-white/10 pb-2 sm:pb-3 mb-2 sm:mb-3">
+                              <span className="font-bold text-[#d10000] text-xs sm:text-sm uppercase truncate pr-2">
+                                @{msg.name}
+                              </span>
+                              <span className="text-[10px] sm:text-[11px] text-white/50 shrink-0">
+                                {getRelativeTime(msg.createdAt)}
+                              </span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
+                              {msg.text}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
-                          {msg.text}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
             </div>
 
-            {/* Floating Control Panel */}
-            <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
-              <AnimatePresence>
-                {isFormOpen && (
-                  <motion.form
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            {/* Input Form Panel - Fixed Positioned */}
+            <AnimatePresence>
+              {isFormOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-[10000] w-[calc(100vw-2rem)] max-w-sm sm:w-96"
+                >
+                  <form
                     onSubmit={handlePostMessage}
-                    className="bg-[#121212] border-2 border-[#d10000] p-4 sm:p-5 shadow-[6px_6px_0_0_#d10000] sm:shadow-[8px_8px_0_0_#d10000] w-[calc(100vw-2rem)] max-w-sm sm:w-96 flex flex-col gap-2.5 sm:gap-3"
+                    className="bg-[#121212] border-2 border-[#d10000] p-4 sm:p-5 shadow-[6px_6px_0_0_#d10000] sm:shadow-[8px_8px_0_0_#d10000] flex flex-col gap-2.5 sm:gap-3"
                   >
                     <div className="text-[10px] sm:text-xs font-bold tracking-wider text-[#d10000] uppercase mb-0.5">
                       // SHARE YOUR THOUGHTS
@@ -238,21 +249,23 @@ export default function CommunityWallCta() {
                     >
                       POST MESSAGE
                     </button>
-                  </motion.form>
-                )}
-              </AnimatePresence>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-              {/* Floating Action Button */}
+            {/* Floating Action Button */}
+            <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[10000]">
               <motion.button
                 onClick={() => setIsFormOpen(!isFormOpen)}
-                whileHover={{ scale: 1.08 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-12 h-12 sm:w-14 sm:h-14 bg-[#d10000] text-white text-2xl sm:text-3xl font-bold flex items-center justify-center rounded-full shadow-[0_0_15px_rgba(209,0,0,0.5)] border-2 border-white hover:bg-[#b00000] transition-colors cursor-pointer shrink-0"
                 aria-label="Add Message"
               >
                 <motion.span
                   animate={{ rotate: isFormOpen ? 45 : 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.15 }}
                 >
                   +
                 </motion.span>
