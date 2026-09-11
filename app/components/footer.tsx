@@ -37,38 +37,42 @@ export default function Footer() {
   // Pure caption text without URL
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(shareText);
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
+  const copyToClipboardSync = (text: string) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
     }
   };
 
-  const isMobileDevice = () => {
-    return (
+  const handleShareClick = (platform: "LinkedIn" | "Instagram", targetUrl: string) => {
+    // 1. Synchronously copy to clipboard so we don't break the user activation gesture chain
+    copyToClipboardSync(shareText);
+
+    // 2. On Mobile with Web Share API support: Trigger sheet IMMEDIATELY without async delays
+    const isMobile =
       typeof window !== "undefined" &&
-      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
-    );
-  };
+      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-  const handleShareClick = async (platform: "LinkedIn" | "Instagram", targetUrl: string) => {
-    await copyToClipboard();
-
-    // 1. On Mobile: Use Native Share Sheet directly if available to completely avoid pop-ups/modals
-    if (isMobileDevice() && navigator.share) {
-      try {
-        await navigator.share({
+    if (isMobile && navigator.share) {
+      navigator
+        .share({
           title: shareTitle,
           text: shareText,
+        })
+        .catch((err) => {
+          if ((err as Error).name !== "AbortError") {
+            // Fallback to modal if native share fails
+            setModal({
+              isOpen: true,
+              platform,
+              message: `Your captions are copied! Tap proceed to visit ${platform}.`,
+              targetUrl,
+            });
+          }
         });
-        return;
-      } catch (err) {
-        if ((err as Error).name === "AbortError") return;
-      }
+      return;
     }
 
-    // 2. On Desktop or devices without navigator.share: Show Modal
+    // 3. Desktop / Unsupported Mobile: Show intermediate confirmation modal
     setModal({
       isOpen: true,
       platform,
