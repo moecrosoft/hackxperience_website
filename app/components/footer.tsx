@@ -34,7 +34,7 @@ export default function Footer() {
     "Building agentic products with 100+ student builders at SIM IT Club's flagship 24-hour hackathon!";
   const shareHashtags = "#HackXperience2026 #SIMITClub";
 
-  // Pure caption text
+  // Formatted caption text
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
   const copyToClipboard = async () => {
@@ -56,16 +56,26 @@ export default function Footer() {
     platform: "LinkedIn" | "Instagram",
     targetUrl: string
   ) => {
-    // Copy text to clipboard immediately on button tap
+    // 1. Copy text to clipboard immediately
     await copyToClipboard();
+
+    const isMobile = isMobileDevice();
+
+    // 2. Set user-friendly instructional message based on device & platform
+    let modalMsg = "";
+    if (platform === "Instagram") {
+      modalMsg =
+        "Caption copied to clipboard! Click Proceed to launch Instagram, then paste your caption into your post.";
+    } else {
+      modalMsg = isMobile
+        ? "Caption copied to clipboard! Click Proceed to launch LinkedIn, then tap Paste in your new post."
+        : "Caption copied to clipboard! Click Proceed to share on LinkedIn.";
+    }
 
     setModal({
       isOpen: true,
       platform,
-      message:
-        platform === "Instagram"
-          ? "Captions copied to clipboard! Tap Proceed to open Instagram."
-          : "Captions copied to clipboard! Tap Proceed to share directly to LinkedIn.",
+      message: modalMsg,
       targetUrl,
     });
   };
@@ -81,24 +91,23 @@ export default function Footer() {
     });
 
     if (isMobileDevice()) {
-      // 1. LinkedIn on Mobile: Trigger System Share Sheet with text pre-filled into LinkedIn App
+      // 1. Mobile LinkedIn: Try Native Share Sheet first
       if (platform === "LinkedIn") {
         if (typeof navigator !== "undefined" && "share" in navigator) {
           try {
             await navigator.share({
               title: shareTitle,
               text: shareText,
-              url: window.location.href, // or your campaign URL
+              url: window.location.href,
             });
             return;
           } catch (err) {
-            // User cancelled share sheet or error occurred
             if ((err as Error).name === "AbortError") return;
           }
         }
       }
 
-      // 2. Instagram on Mobile: Direct deep link trigger into Instagram app
+      // 2. Mobile Instagram: Trigger direct app launch with fallback
       if (platform === "Instagram") {
         window.location.href = "instagram://app";
         setTimeout(() => {
@@ -108,15 +117,18 @@ export default function Footer() {
       }
     }
 
-    // 3. Desktop fallback: Open platform web application in a new tab
+    // 3. Desktop / Fallback: Open URL in new window/tab
     window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleLinkedInShare = () => {
-    const encodedText = encodeURIComponent(shareText);
+    const currentSiteUrl =
+      typeof window !== "undefined"
+        ? window.location.href
+        : "https://simitclub.com";
     const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-      typeof window !== "undefined" ? window.location.href : "https://simitclub.com"
-    )}&summary=${encodedText}`;
+      currentSiteUrl
+    )}`;
     handleShareClick("LinkedIn", linkedinUrl);
   };
 
@@ -233,7 +245,7 @@ export default function Footer() {
         </div>
       </footer>
 
-      {/* Proceed Modal (Renders on Desktop & Mobile) */}
+      {/* Proceed Modal */}
       {modal.isOpen && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 ${ibmPlexMono.className}`}
