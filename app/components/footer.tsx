@@ -56,20 +56,23 @@ export default function Footer() {
     platform: "LinkedIn" | "Instagram",
     targetUrl: string
   ) => {
-    // 1. Copy captions to clipboard first
+    // 1. Always copy text to clipboard first
     await copyToClipboard();
 
-    // 2. Always open the Proceed Modal first
+    // 2. Always show Proceed Modal first (both Mobile and Desktop)
     setModal({
       isOpen: true,
       platform,
-      message: `Your captions are copied! Click proceed to visit ${platform}.`,
+      message:
+        platform === "Instagram"
+          ? "Captions copied to clipboard! Click proceed to launch Instagram."
+          : `Captions copied to clipboard! Click proceed to share on ${platform}.`,
       targetUrl,
     });
   };
 
   const handleProceed = async () => {
-    const { targetUrl } = modal;
+    const { platform, targetUrl } = modal;
 
     // Close the modal state
     setModal({
@@ -79,21 +82,36 @@ export default function Footer() {
       targetUrl: "",
     });
 
-    // On mobile devices with share support, launch native share sheet
-    if (isMobileDevice() && typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: targetUrl,
-        });
+    if (isMobileDevice()) {
+      // 1. LinkedIn on Mobile: Open native Share Sheet
+      if (
+        platform === "LinkedIn" &&
+        typeof navigator !== "undefined" &&
+        "share" in navigator
+      ) {
+        try {
+          await navigator.share({
+            title: shareTitle,
+            text: shareText,
+            url: targetUrl,
+          });
+          return;
+        } catch (err) {
+          if ((err as Error).name === "AbortError") return;
+        }
+      }
+
+      // 2. Instagram on Mobile: Open Instagram App via URI scheme
+      if (platform === "Instagram") {
+        window.location.href = "instagram://app";
+        setTimeout(() => {
+          window.location.href = "https://www.instagram.com/";
+        }, 1200);
         return;
-      } catch (err) {
-        if ((err as Error).name === "AbortError") return;
       }
     }
 
-    // Desktop or fallback: Open platform link directly in a new tab
+    // 3. Desktop or Fallback: Open URL in a new tab
     window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -216,7 +234,7 @@ export default function Footer() {
         </div>
       </footer>
 
-      {/* Share Modal */}
+      {/* Proceed Modal (Renders on Desktop & Mobile) */}
       {modal.isOpen && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 ${ibmPlexMono.className}`}
