@@ -34,7 +34,7 @@ export default function Footer() {
     "Building agentic products with 100+ student builders at SIM IT Club's flagship 24-hour hackathon!";
   const shareHashtags = "#HackXperience2026 #SIMITClub";
 
-  // Formatted caption text
+  // Pure caption text
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
   const copyToClipboard = async () => {
@@ -68,7 +68,7 @@ export default function Footer() {
         "Caption copied to clipboard! Click Proceed to launch Instagram, then paste your caption into your post.";
     } else {
       modalMsg = isMobile
-        ? "Caption copied to clipboard! Click Proceed to launch LinkedIn, then tap Paste in your new post."
+        ? "Caption copied to clipboard! Click Proceed to open the LinkedIn post editor directly."
         : "Caption copied to clipboard! Click Proceed to share on LinkedIn.";
     }
 
@@ -91,23 +91,13 @@ export default function Footer() {
     });
 
     if (isMobileDevice()) {
-      // 1. Mobile LinkedIn: Try Native Share Sheet first
+      // 1. LinkedIn Mobile: Direct launch into Post Composer (bypasses Share Sheet / attachment modal)
       if (platform === "LinkedIn") {
-        if (typeof navigator !== "undefined" && "share" in navigator) {
-          try {
-            await navigator.share({
-              title: shareTitle,
-              text: shareText,
-              url: window.location.href,
-            });
-            return;
-          } catch (err) {
-            if ((err as Error).name === "AbortError") return;
-          }
-        }
+        window.location.href = targetUrl;
+        return;
       }
 
-      // 2. Mobile Instagram: Trigger direct app launch with fallback
+      // 2. Instagram Mobile: Direct app deep link with browser fallback
       if (platform === "Instagram") {
         window.location.href = "instagram://app";
         setTimeout(() => {
@@ -117,7 +107,7 @@ export default function Footer() {
       }
     }
 
-    // 3. Desktop / Fallback: Open URL in new window/tab
+    // 3. Desktop / Fallback: Open target URL in a new browser tab
     window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -126,9 +116,14 @@ export default function Footer() {
       typeof window !== "undefined"
         ? window.location.href
         : "https://simitclub.com";
-    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-      currentSiteUrl
-    )}`;
+
+    // Combine caption and site URL into text parameter to bypass the Link Share sheet
+    const fullPostContent = `${shareText}\n\n${currentSiteUrl}`;
+    const encodedText = encodeURIComponent(fullPostContent);
+
+    // Forces mobile app and browser into post compose mode directly
+    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
+
     handleShareClick("LinkedIn", linkedinUrl);
   };
 
