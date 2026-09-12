@@ -34,7 +34,7 @@ export default function Footer() {
     "Building agentic products with 100+ student builders at SIM IT Club's flagship 24-hour hackathon!";
   const shareHashtags = "#HackXperience2026 #SIMITClub";
 
-  // Pure caption text
+  // Pure caption text (NO URL included to prevent preview card)
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
   const copyToClipboard = async () => {
@@ -61,14 +61,14 @@ export default function Footer() {
 
     const isMobile = isMobileDevice();
 
-    // 2. Set user-friendly instructional message based on device & platform
+    // 2. Set instructional message
     let modalMsg = "";
     if (platform === "Instagram") {
       modalMsg =
         "Caption copied to clipboard! Click Proceed to launch Instagram, then paste your caption into your post.";
     } else {
       modalMsg = isMobile
-        ? "Caption copied to clipboard! Click Proceed to open the LinkedIn post editor directly."
+        ? "Caption copied to clipboard! Click Proceed to open LinkedIn and share your post."
         : "Caption copied to clipboard! Click Proceed to share on LinkedIn.";
     }
 
@@ -91,13 +91,13 @@ export default function Footer() {
     });
 
     if (isMobileDevice()) {
-      // 1. LinkedIn Mobile: Direct launch into Post Composer (bypasses Share Sheet / attachment modal)
+      // 1. LinkedIn Mobile: Open direct feed text editor (no share sheet / no link preview card)
       if (platform === "LinkedIn") {
         window.location.href = targetUrl;
         return;
       }
 
-      // 2. Instagram Mobile: Direct app deep link with browser fallback
+      // 2. Instagram Mobile: Direct app deep link
       if (platform === "Instagram") {
         window.location.href = "instagram://app";
         setTimeout(() => {
@@ -107,21 +107,15 @@ export default function Footer() {
       }
     }
 
-    // 3. Desktop / Fallback: Open target URL in a new browser tab
+    // 3. Desktop / Fallback: Open in new tab
     window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleLinkedInShare = () => {
-    const currentSiteUrl =
-      typeof window !== "undefined"
-        ? window.location.href
-        : "https://simitclub.com";
+    // Encode pure caption text with NO web URLs attached to prevent link card rendering
+    const encodedText = encodeURIComponent(shareText);
 
-    // Combine caption and site URL into text parameter to bypass the Link Share sheet
-    const fullPostContent = `${shareText}\n\n${currentSiteUrl}`;
-    const encodedText = encodeURIComponent(fullPostContent);
-
-    // Forces mobile app and browser into post compose mode directly
+    // Forces post creation mode with pure text pre-filled
     const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
 
     handleShareClick("LinkedIn", linkedinUrl);
