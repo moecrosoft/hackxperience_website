@@ -34,7 +34,7 @@ export default function Footer() {
     "Building agentic products with 100+ student builders at SIM IT Club's flagship 24-hour hackathon!";
   const shareHashtags = "#HackXperience2026 #SIMITClub";
 
-  // Pure caption text without URL
+  // Pure caption text
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
   const copyToClipboard = async () => {
@@ -56,17 +56,16 @@ export default function Footer() {
     platform: "LinkedIn" | "Instagram",
     targetUrl: string
   ) => {
-    // 1. Always copy text to clipboard first
+    // Copy text to clipboard immediately on button tap
     await copyToClipboard();
 
-    // 2. Always show Proceed Modal first (both Mobile and Desktop)
     setModal({
       isOpen: true,
       platform,
       message:
         platform === "Instagram"
-          ? "Captions copied to clipboard! Click proceed to launch Instagram."
-          : `Captions copied to clipboard! Click proceed to share on ${platform}.`,
+          ? "Captions copied to clipboard! Tap Proceed to open Instagram."
+          : "Captions copied to clipboard! Tap Proceed to share directly to LinkedIn.",
       targetUrl,
     });
   };
@@ -74,7 +73,6 @@ export default function Footer() {
   const handleProceed = async () => {
     const { platform, targetUrl } = modal;
 
-    // Close the modal state
     setModal({
       isOpen: false,
       platform: null,
@@ -83,25 +81,24 @@ export default function Footer() {
     });
 
     if (isMobileDevice()) {
-      // 1. LinkedIn on Mobile: Open native Share Sheet
-      if (
-        platform === "LinkedIn" &&
-        typeof navigator !== "undefined" &&
-        "share" in navigator
-      ) {
-        try {
-          await navigator.share({
-            title: shareTitle,
-            text: shareText,
-            url: targetUrl,
-          });
-          return;
-        } catch (err) {
-          if ((err as Error).name === "AbortError") return;
+      // 1. LinkedIn on Mobile: Trigger System Share Sheet with text pre-filled into LinkedIn App
+      if (platform === "LinkedIn") {
+        if (typeof navigator !== "undefined" && "share" in navigator) {
+          try {
+            await navigator.share({
+              title: shareTitle,
+              text: shareText,
+              url: window.location.href, // or your campaign URL
+            });
+            return;
+          } catch (err) {
+            // User cancelled share sheet or error occurred
+            if ((err as Error).name === "AbortError") return;
+          }
         }
       }
 
-      // 2. Instagram on Mobile: Open Instagram App via URI scheme
+      // 2. Instagram on Mobile: Direct deep link trigger into Instagram app
       if (platform === "Instagram") {
         window.location.href = "instagram://app";
         setTimeout(() => {
@@ -111,13 +108,15 @@ export default function Footer() {
       }
     }
 
-    // 3. Desktop or Fallback: Open URL in a new tab
+    // 3. Desktop fallback: Open platform web application in a new tab
     window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleLinkedInShare = () => {
     const encodedText = encodeURIComponent(shareText);
-    const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
+    const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+      typeof window !== "undefined" ? window.location.href : "https://simitclub.com"
+    )}&summary=${encodedText}`;
     handleShareClick("LinkedIn", linkedinUrl);
   };
 
