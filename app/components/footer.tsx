@@ -37,42 +37,44 @@ export default function Footer() {
   // Pure caption text without URL
   const shareText = `${shareTitle}\n\n${shareSubtitle}\n\n${shareHashtags}`;
 
-  const copyToClipboardSync = (text: string) => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(() => {});
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareText);
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
     }
   };
 
-  const handleShareClick = (platform: "LinkedIn" | "Instagram", targetUrl: string) => {
-    // 1. Synchronously copy to clipboard so we don't break the user activation gesture chain
-    copyToClipboardSync(shareText);
-
-    // 2. On Mobile with Web Share API support: Trigger sheet IMMEDIATELY without async delays
-    const isMobile =
+  const isMobileDevice = () => {
+    return (
       typeof window !== "undefined" &&
-      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    );
+  };
 
-    if (isMobile && navigator.share) {
-      navigator
-        .share({
+  const handleShareClick = async (
+    platform: "LinkedIn" | "Instagram",
+    targetUrl: string
+  ) => {
+    await copyToClipboard();
+
+    // 1. Mobile: Use Native Share Sheet directly
+    if (isMobileDevice() && navigator.share) {
+      try {
+        await navigator.share({
           title: shareTitle,
           text: shareText,
-        })
-        .catch((err) => {
-          if ((err as Error).name !== "AbortError") {
-            // Fallback to modal if native share fails
-            setModal({
-              isOpen: true,
-              platform,
-              message: `Your captions are copied! Tap proceed to visit ${platform}.`,
-              targetUrl,
-            });
-          }
         });
-      return;
+        // Exit early so desktop modal state is never triggered on mobile
+        return;
+      } catch (err) {
+        // If user cancelled native share, exit quietly
+        if ((err as Error).name === "AbortError") return;
+        // If native share threw an unhandled error, fall back to modal below
+      }
     }
 
-    // 3. Desktop / Unsupported Mobile: Show intermediate confirmation modal
+    // 2. Desktop or Fallback: Show Modal
     setModal({
       isOpen: true,
       platform,
