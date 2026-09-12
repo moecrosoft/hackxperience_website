@@ -45,36 +45,14 @@ export default function Footer() {
     }
   };
 
-  const isMobileDevice = () => {
-    return (
-      typeof window !== "undefined" &&
-      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
-    );
-  };
-
   const handleShareClick = async (
     platform: "LinkedIn" | "Instagram",
     targetUrl: string
   ) => {
+    // 1. Copy text to clipboard
     await copyToClipboard();
 
-    // 1. Mobile: Use Native Share Sheet directly
-    if (isMobileDevice() && navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-        });
-        // Exit early so desktop modal state is never triggered on mobile
-        return;
-      } catch (err) {
-        // If user cancelled native share, exit quietly
-        if ((err as Error).name === "AbortError") return;
-        // If native share threw an unhandled error, fall back to modal below
-      }
-    }
-
-    // 2. Desktop or Fallback: Show Modal
+    // 2. Always display custom modal across all devices (Desktop & Mobile)
     setModal({
       isOpen: true,
       platform,
