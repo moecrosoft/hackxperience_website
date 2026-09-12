@@ -45,20 +45,56 @@ export default function Footer() {
     }
   };
 
+  const isMobileDevice = () => {
+    return (
+      typeof window !== "undefined" &&
+      /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+    );
+  };
+
   const handleShareClick = async (
     platform: "LinkedIn" | "Instagram",
     targetUrl: string
   ) => {
-    // 1. Copy text to clipboard
+    // 1. Copy captions to clipboard first
     await copyToClipboard();
 
-    // 2. Always display custom modal across all devices (Desktop & Mobile)
+    // 2. Always open the Proceed Modal first
     setModal({
       isOpen: true,
       platform,
       message: `Your captions are copied! Click proceed to visit ${platform}.`,
       targetUrl,
     });
+  };
+
+  const handleProceed = async () => {
+    const { targetUrl } = modal;
+
+    // Close the modal state
+    setModal({
+      isOpen: false,
+      platform: null,
+      message: "",
+      targetUrl: "",
+    });
+
+    // On mobile devices with share support, launch native share sheet
+    if (isMobileDevice() && typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: targetUrl,
+        });
+        return;
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+      }
+    }
+
+    // Desktop or fallback: Open platform link directly in a new tab
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleLinkedInShare = () => {
@@ -207,22 +243,13 @@ export default function Footer() {
               >
                 CANCEL
               </button>
-              <a
-                href={modal.targetUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() =>
-                  setModal({
-                    isOpen: false,
-                    platform: null,
-                    message: "",
-                    targetUrl: "",
-                  })
-                }
+              <button
+                type="button"
+                onClick={handleProceed}
                 className="bg-[#c00000] px-5 py-2 text-[12px] font-semibold tracking-[0.06em] text-white hover:bg-[#a00000] transition-colors cursor-pointer uppercase inline-block text-center"
               >
                 PROCEED
-              </a>
+              </button>
             </div>
           </div>
         </div>
